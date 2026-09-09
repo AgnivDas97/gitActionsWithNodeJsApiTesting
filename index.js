@@ -5,6 +5,22 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// Helper function to extract only the requested user fields
+const formatUser = (user) => ({
+  id: user.id,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  maidenName: user.maidenName,
+  age: user.age,
+  gender: user.gender,
+  email: user.email,
+  phone: user.phone,
+  username: user.username,
+  birthDate: user.birthDate
+});
+
+const USER_FIELDS = 'id,firstName,lastName,maidenName,age,gender,email,phone,username,birthDate';
+
 // Root health check endpoint
 app.get('/', (req, res) => {
   res.json({
@@ -18,45 +34,48 @@ app.get('/', (req, res) => {
   });
 });
 
-// GET /api/users - Fetch users from DummyJSON with optional pagination
+// GET /api/users - Fetch users from DummyJSON with filtered fields & optional pagination
 app.get('/api/users', async (req, res) => {
   try {
     const { limit = 30, skip = 0 } = req.query;
-    const response = await fetch(`https://dummyjson.com/users?limit=${limit}&skip=${skip}`);
+    const response = await fetch(`https://dummyjson.com/users?limit=${limit}&skip=${skip}&select=${USER_FIELDS}`);
     
     if (!response.ok) {
       return res.status(response.status).json({ error: 'Failed to fetch users from external API' });
     }
     
     const data = await response.json();
-    res.json(data);
+    res.json({
+      ...data,
+      users: data.users.map(formatUser)
+    });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 
-// GET /api/users/:id - Fetch single user by ID
+// GET /api/users/:id - Fetch single user by ID with filtered fields
 app.get('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const response = await fetch(`https://dummyjson.com/users/${id}`);
+    const response = await fetch(`https://dummyjson.com/users/${id}?select=${USER_FIELDS}`);
     
     if (!response.ok) {
       return res.status(response.status).json({ error: `User with ID ${id} not found` });
     }
     
     const data = await response.json();
-    res.json(data);
+    res.json(formatUser(data));
   } catch (error) {
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 
-// GET /api/users/role/:role - Filter users by role (admin, moderator, user)
+// GET /api/users/role/:role - Filter users by role (admin, moderator, user) with filtered fields
 app.get('/api/users/role/:role', async (req, res) => {
   try {
     const { role } = req.params;
-    const response = await fetch('https://dummyjson.com/users?limit=0');
+    const response = await fetch(`https://dummyjson.com/users?limit=0&select=${USER_FIELDS},role`);
     
     if (!response.ok) {
       return res.status(response.status).json({ error: 'Failed to fetch users' });
@@ -70,7 +89,7 @@ app.get('/api/users/role/:role', async (req, res) => {
     res.json({
       role,
       count: filteredUsers.length,
-      users: filteredUsers
+      users: filteredUsers.map(formatUser)
     });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error', details: error.message });
