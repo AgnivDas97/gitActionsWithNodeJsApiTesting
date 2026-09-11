@@ -144,6 +144,39 @@ Sample output:
 
 ---
 
+## 🐳 Running with Docker
+
+### Using Docker CLI
+1. **Build the Docker Image**:
+   ```bash
+   docker build -t api-testing-server .
+   ```
+
+2. **Run the Container**:
+   ```bash
+   docker run -d -p 3000:3000 --name api-testing-container api-testing-server
+   ```
+   Access the server at `http://localhost:3000`.
+
+3. **Check Container Health & Logs**:
+   ```bash
+   docker ps
+   docker logs api-testing-container
+   ```
+
+### Using Docker Compose
+Start the service in detached mode:
+```bash
+docker compose up -d
+```
+
+Stop the service:
+```bash
+docker compose down
+```
+
+---
+
 ## 📂 Project Structure
 
 ```text
@@ -153,8 +186,12 @@ gitActionsWithNodeJsApiTesting/
 │       └── api-testing.yml   # GitHub Actions CI workflow configuration
 ├── test/
 │   └── api.test.js          # API integration test suite using node:test
+├── .dockerignore            # Files ignored during Docker build
 ├── .gitignore               # Git ignore rules (node_modules, etc.)
+├── docker-compose.yml       # Docker Compose multi-container/orchestration configuration
+├── Dockerfile               # Production multi-stage lightweight Alpine container definition
 ├── index.js                 # Express server & API endpoints implementation
 ├── package.json             # NPM project metadata and scripts
 └── README.md                # Project documentation
 ```
+
