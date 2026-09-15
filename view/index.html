@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Modern User Directory & Analytics Dashboard powered by Node.js, PostgreSQL and Redis caching.">
+  <title>User Directory & Analytics Dashboard | Node.js + PostgreSQL + Redis</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Navigation / Header -->
+    <header class="header">
+      <div class="brand-section">
+        <div class="brand-icon" aria-hidden="true">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="app-title" id="main-heading">User Directory</h1>
+          <p class="app-subtitle">Node.js Express API &bull; PostgreSQL (dummy-user-data) &bull; Redis Caching</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Live System Status Indicators -->
+        <div class="status-group" title="PostgreSQL Database Connection Status">
+          <span class="status-dot"></span>
+          <span>PostgreSQL: <strong>dummy-user-data</strong></span>
+        </div>
+
+        <div class="status-group" id="redis-indicator" title="Redis Cache Status">
+          <span class="status-dot" id="redis-dot" style="background-color: var(--color-emerald); box-shadow: 0 0 8px var(--color-emerald);"></span>
+          <span id="redis-text">Redis Active</span>
+        </div>
+
+        <div class="status-group" id="ws-indicator" title="WebSocket Live Connection Status">
+          <span class="status-dot" id="ws-dot" style="background-color: var(--color-amber); box-shadow: 0 0 8px var(--color-amber);"></span>
+          <span id="ws-text">WS: Connecting...</span>
+        </div>
+
+        <!-- Refresh Button -->
+        <button id="refresh-btn" class="btn-icon" title="Refresh Users" aria-label="Refresh Data">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle-btn" class="btn-icon" title="Toggle Light / Dark Mode" aria-label="Toggle Theme">
+          <svg id="theme-icon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Real-time Metrics Cards -->
+      <section class="metrics-grid" aria-label="Database and Performance Metrics">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span>Total Database Users</span>
+            <div class="metric-icon" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary);">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+          </div>
+          <div class="metric-value" id="metric-total-users">--</div>
+          <div class="metric-footer">
+            <span>Synchronized with PostgreSQL table</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span>Cache Performance</span>
+            <div class="metric-icon" style="background: var(--color-emerald-bg); color: var(--color-emerald);">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+          </div>
+          <div class="metric-value" id="metric-cache-status">--</div>
+          <div class="metric-footer" id="metric-latency">
+            <span>Response Latency: 0ms</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span>Current Page Filter</span>
+            <div class="metric-icon" style="background: var(--color-sky-bg); color: var(--color-sky);">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+            </div>
+          </div>
+          <div class="metric-value" id="metric-filtered-count">--</div>
+          <div class="metric-footer">
+            <span id="metric-active-role">Filter: All Users</span>
+          </div>
+        </div>
+
+        <div class="metric-card" id="metric-ws-card">
+          <div class="metric-header">
+            <span>Live WebSocket</span>
+            <div class="metric-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--color-emerald);">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+              </svg>
+            </div>
+          </div>
+          <div class="metric-value" id="metric-ws-clients">--</div>
+          <div class="metric-footer" id="metric-ws-footer">
+            <span id="ws-last-event">Connecting to /ws...</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Real-Time WebSocket Activity Ticker -->
+      <section class="ws-ticker-bar" id="ws-ticker-bar" aria-label="Live WebSocket Activity">
+        <div class="ticker-label">
+          <span class="pulse-indicator"></span>
+          <span>LIVE WS STREAM</span>
+        </div>
+        <div class="ticker-content" id="ws-ticker-content">
+          Listening for real-time Redis cache events &amp; active client queries...
+        </div>
+        <div class="ticker-time" id="ws-ticker-time">Just now</div>
+      </section>
+
+      <!-- Search and Filter Controls -->
+      <section class="controls-bar" aria-label="Controls and filters">
+        <div class="search-wrapper">
+          <svg class="search-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search by name, email, or username..." autocomplete="off">
+        </div>
+
+        <div class="filters-group" role="tablist" aria-label="Filter users by role">
+          <button class="filter-btn active" data-role="all" id="filter-all">All</button>
+          <button class="filter-btn" data-role="admin" id="filter-admin">Admin</button>
+          <button class="filter-btn" data-role="moderator" id="filter-moderator">Moderator</button>
+          <button class="filter-btn" data-role="user" id="filter-user">User</button>
+        </div>
+
+        <div class="limit-selector">
+          <label for="limit-select">Per page:</label>
+          <select id="limit-select" class="select-dropdown">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Data Table -->
+      <section class="table-container" aria-label="Users Table View">
+        <table class="users-table" id="users-table">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">User</th>
+              <th scope="col">Contact Info</th>
+              <th scope="col" class="hide-mobile">Demographics</th>
+              <th scope="col" class="hide-mobile">Birth Date</th>
+              <th scope="col" style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <!-- Dynamic Users Rows injected by JS -->
+          </tbody>
+        </table>
+
+        <!-- Loading State -->
+        <div class="loading-state" id="loading-spinner" style="display: none;">
+          <div class="spinner"></div>
+          <p>Querying PostgreSQL &amp; Redis Cache...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state" style="display: none;">
+          <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin: 0 auto 0.75rem; opacity: 0.4;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p>No user records match your search or filter.</p>
+        </div>
+      </section>
+
+      <!-- Pagination Navigation -->
+      <nav class="pagination-bar" aria-label="Pagination">
+        <div id="pagination-info">Showing 0 to 0 of 0 users</div>
+        <div class="pagination-controls">
+          <button id="prev-page-btn" class="page-btn" disabled>
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Previous
+          </button>
+          <span id="page-indicator" style="font-size: 0.8125rem; font-weight: 600; padding: 0 0.5rem;">Page 1</span>
+          <button id="next-page-btn" class="page-btn">
+            Next
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </main>
+
+  </div>
+
+  <!-- User Detail Native Dialog Modal -->
+  <dialog id="userModal" aria-labelledby="modal-user-name">
+    <div class="modal-header">
+      <div class="modal-user-hero">
+        <div class="modal-avatar" id="modal-avatar">EJ</div>
+        <div>
+          <h2 id="modal-user-name" style="font-family: var(--font-display); font-size: 1.25rem;">User Details</h2>
+          <span class="user-meta-username" id="modal-username">@username</span>
+        </div>
+      </div>
+      <button class="btn-icon" id="close-modal-btn" aria-label="Close dialog">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-field">
+          <div class="field-label">User ID</div>
+          <div class="field-value" id="modal-id">#1</div>
+        </div>
+        <div class="modal-field">
+          <div class="field-label">Gender / Age</div>
+          <div class="field-value" id="modal-age-gender">Female &bull; 29 yrs</div>
+        </div>
+        <div class="modal-field">
+          <div class="field-label">Email Address</div>
+          <div class="field-value" id="modal-email">-</div>
+        </div>
+        <div class="modal-field">
+          <div class="field-label">Phone Number</div>
+          <div class="field-value" id="modal-phone">-</div>
+        </div>
+        <div class="modal-field">
+          <div class="field-label">Birth Date</div>
+          <div class="field-value" id="modal-birthdate">-</div>
+        </div>
+        <div class="modal-field">
+          <div class="field-label">Maiden Name</div>
+          <div class="field-value" id="modal-maiden">-</div>
+        </div>
+      </div>
+
+      <div class="modal-field" style="margin-top: 0.5rem;">
+        <div class="field-label">Raw Database Record (JSON)</div>
+        <pre id="modal-raw-json" style="font-family: var(--font-mono); font-size: 0.75rem; color: #a5b4fc; background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 6px; overflow-x: auto; margin-top: 0.3rem;"></pre>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-primary" id="modal-done-btn">Done</button>
+    </div>
+  </dialog>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-emerald);">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="toast-message">Notification</span>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="script.js"></script>
+</body>
+</html>

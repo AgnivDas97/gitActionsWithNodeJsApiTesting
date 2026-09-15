@@ -19,6 +19,31 @@ jobs:
       matrix:
         node-version: [18.x, 20.x, 22.x]
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dummy-user-data
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -32,5 +57,25 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Initialize Database Schema & Seed
+        run: npm run db:init
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: dummy-user-data
+
       - name: Run API Tests & Validation
         run: npm test
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: dummy-user-data
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          CACHE_TTL: 60
+
+

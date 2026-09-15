@@ -16,9 +16,14 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node --test"
+    "test": "node --test",
+    "db:init": "node scripts/init-db.js"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "pg": "^8.23.0",
+    "redis": "^6.2.1",
+    "ws": "^8.21.3"
   }
 }
